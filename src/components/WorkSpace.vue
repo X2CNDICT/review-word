@@ -113,11 +113,11 @@
           @click="next"
         >next</el-button>
       </section>
-      <div v-if="!descriptorMap[data.dict_pos]" style="color: red">unsupport pos</div>
+      <div v-if="!descriptorMap[data.pos]" style="color: red">unsupport pos</div>
       <dynamic-form
-        v-if="descriptorMap[data.dict_pos]"
+        v-if="descriptorMap[data.pos]"
         v-model="data"
-        :descriptors="descriptorMap[data.dict_pos]">
+        :descriptors="descriptorMap[data.pos]">
       </dynamic-form>
     </el-dialog>
   </section>
@@ -291,6 +291,7 @@ export default class WorkSpace extends Vue {
         const word = {
           word: item.word,
           dict_pos: item.dict_pos,
+          pos: item.dict_pos,
           meaning: item.meaning,
           variations: {
             origin: '',
@@ -318,11 +319,15 @@ export default class WorkSpace extends Vue {
   }
 
   exportXlsx() {
-    const data = this.fliterData.map((item: any) => ({
-      ...item,
-      variations: JSON.stringify(item.variations),
-      extension: JSON.stringify(item.extension),
-    }));
+    const data = this.fliterData.map((item: any) => {
+      const d = {
+        ...item,
+        variations: JSON.stringify(item.variations),
+        extension: JSON.stringify(item.extension),
+      };
+      delete d.pos;
+      return d;
+    });
     /* make the worksheet */
     const ws = xlsx.utils.json_to_sheet(data);
 

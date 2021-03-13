@@ -3,7 +3,7 @@ const metadata = {
     type: 'string',
     disabled: true,
   },
-  pos: {
+  dict_pos: {
     type: 'string',
   },
   meaning: {
@@ -59,40 +59,48 @@ const vDescriptor = {
     },
   },
 };
-export default {
-  'n.': {
-    ...metadata,
-    variations: {
-      type: 'object',
-      label: 'variations',
-      fields: {
-        origin: {
-          type: 'string',
-        },
-        formats: {
-          type: 'array',
-          defaultField: {
-            type: 'string',
-          },
-        },
+const nDescriptor = {
+  ...metadata,
+  variations: {
+    type: 'object',
+    label: 'variations',
+    fields: {
+      origin: {
+        type: 'string',
       },
-    },
-    extension: {
-      type: 'object',
-      label: 'extension',
-      fields: {
-        singular: {
-          type: 'string',
-        },
-        plural: {
+      formats: {
+        type: 'array',
+        defaultField: {
           type: 'string',
         },
       },
     },
   },
+  extension: {
+    type: 'object',
+    label: 'extension',
+    fields: {
+      singular: {
+        type: 'string',
+      },
+      plural: {
+        type: 'string',
+      },
+    },
+  },
+};
+export default {
+  'n.': nDescriptor,
+  'n.C.': nDescriptor,
+  'n.U.': nDescriptor,
   'v.': vDescriptor,
   'vt.': vDescriptor,
   'vi.': vDescriptor,
+  'v.vt.': vDescriptor,
+  'v.vi.': vDescriptor,
+  'v.aux.': vDescriptor,
+  'v.link.': vDescriptor,
+  'v.modal.': vDescriptor,
   'adj.': {
     ...metadata,
     extension: {
@@ -113,6 +121,16 @@ export default {
   },
   'adv.': metadata,
   'prep.': metadata,
-  'conj.': metadata,
   'pron.': metadata,
+  'pron.poss.': metadata,
+  'pron.refl.': metadata,
+  'pron.dem.': metadata,
+  'pron.rel.': metadata,
+  'pron.recip.': metadata,
+  'pron.int.': metadata,
+  'pron.pers.': metadata,
+  'pron.interrog.': metadata,
+  'conj.': metadata,
+  'cconj.': metadata,
+  'sconj.': metadata,
 };

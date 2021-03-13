@@ -3,7 +3,7 @@ const metadata = {
     type: 'string',
     disabled: true,
   },
-  pos: {
+  dict_pos: {
     type: 'string',
   },
   meaning: {
