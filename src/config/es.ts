@@ -46,7 +46,7 @@ const vDescriptor = {
     type: 'object',
     label: 'variations',
     fields: {
-      origin: {
+      original: {
         type: 'string',
       },
       formats: {
@@ -157,7 +157,7 @@ const nDescriptor = {
     type: 'object',
     label: 'variations',
     fields: {
-      origin: {
+      original: {
         type: 'string',
       },
       formats: {

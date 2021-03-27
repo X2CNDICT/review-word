@@ -1,32 +1,69 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/en">英语</router-link> |
-      <router-link to="/es">西班牙语</router-link>
-    </div>
-    <router-view />
+    <el-header>
+      <el-tabs class="tab" v-model="activeName" @tab-click="tabClick">
+        <el-tab-pane label="英语" name="en"></el-tab-pane>
+        <el-tab-pane label="西班牙语" name="es"></el-tab-pane>
+      </el-tabs>
+      <div style="flex: 1"></div>
+      <span class="version">单机版</span>
+    </el-header>
+    <el-main>
+      <router-view />
+    </el-main>
   </div>
 </template>
 
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator';
+
+@Component({})
+export default class App extends Vue {
+  activeName = 'en';
+
+  mounted() {
+    this.activeName = this.$route.name as string;
+  }
+
+  tabClick() {
+    this.$router.push({ name: this.activeName }).catch(() => {
+      // empty
+    });
+  }
+}
+</script>
+
 <style lang="scss">
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  height: 100%;
 }
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
+.el-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #E0E3E8;
+  padding: 0 16% !important;
+  .version {
+    font-size: 14px;
+    color: #8F9297;
   }
+}
+.tab {
+  .el-tabs__nav-wrap::after {
+    background-color: unset;
+  }
+}
+.el-main {
+  padding-left: 16% !important;
+  padding-right: 16% !important;
 }
 </style>
