@@ -17,7 +17,7 @@
         <el-select
           v-model="baseFormModel.form"
           @change="formChange($event)"
-          :disabled="inputDisabled"
+          :disabled="baseFormModel.status === 'abstained'"
         >
           <el-option
             v-for="item in formOptions"
@@ -108,6 +108,16 @@
         </el-button>
       </section>
     </el-form>
+     <span slot="footer">
+      <el-button @click="$emit('prev')" size="small" :disabled="prevDisabled">
+        <i class="el-icon-arrow-left"></i>
+        上一个
+      </el-button>
+      <el-button type="primary" size="small" @click="$emit('next')" :disabled="nextDisabled">
+        下一个
+        <i class="el-icon-arrow-right"></i>
+      </el-button>
+    </span>
   </el-dialog>
 </template>
 
@@ -126,6 +136,12 @@ export default class BaseFrom extends Vue {
   @Prop()
   baseFormModel: any;
 
+  @Prop()
+  prevDisabled: any;
+
+  @Prop()
+  nextDisabled: any;
+
   copy: any;
 
   get dialogVisible() {
@@ -137,7 +153,7 @@ export default class BaseFrom extends Vue {
   }
 
   get inputDisabled() {
-    return this.baseFormModel.status === 'abstained';
+    return this.baseFormModel.status === 'abstained' || this.baseFormModel.form === 'inflection';
   }
 
   @Watch('visible')
@@ -160,6 +176,8 @@ export default class BaseFrom extends Vue {
   formChange(form: string) {
     if (form === 'inflection') {
       this.baseFormModel.status = 'edited';
+      this.baseFormModel.word = this.copy.word;
+      this.baseFormModel.explanation = cloneDeep(this.copy.explanation);
     }
   }
 

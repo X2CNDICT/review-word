@@ -23,12 +23,24 @@ export default class App extends Vue {
 
   mounted() {
     this.activeName = this.$route.name as string;
+    window.addEventListener('beforeunload', this.preventRefresh);
   }
 
   tabClick() {
     this.$router.push({ name: this.activeName }).catch(() => {
       // empty
     });
+  }
+
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', this.preventRefresh);
+  }
+
+  preventRefresh(event: BeforeUnloadEvent) {
+    event.preventDefault();
+    /* eslint no-param-reassign: "error" */
+    event.returnValue = '确认离开英语单机版页面吗？建议您保存该文件至本地，以免前功尽弃。';
+    return '确认离开英语单机版页面吗？建议您保存该文件至本地，以免前功尽弃。';
   }
 }
 </script>

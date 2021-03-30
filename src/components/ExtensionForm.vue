@@ -17,7 +17,7 @@
         <el-select
           v-model="extensionFormModel.form"
           @change="formChange($event)"
-          :disabled="inputDisabled"
+          :disabled="extensionFormModel.status === 'abstained'"
         >
           <el-option
             v-for="item in formOptions"
@@ -90,6 +90,16 @@
       >
       </dynamic-form>
     </el-form>
+    <span slot="footer">
+      <el-button @click="$emit('prev')" size="small" :disabled="prevDisabled">
+        <i class="el-icon-arrow-left"></i>
+        上一个
+      </el-button>
+      <el-button type="primary" size="small" @click="$emit('next')" :disabled="nextDisabled">
+        下一个
+        <i class="el-icon-arrow-right"></i>
+      </el-button>
+    </span>
   </el-dialog>
 </template>
 
@@ -126,6 +136,12 @@ export default class ExtensionForm extends Vue {
   @Prop()
   extensionPos: any;
 
+  @Prop()
+  prevDisabled: any;
+
+  @Prop()
+  nextDisabled: any;
+
   copy: any;
 
   @Watch('visible')
@@ -142,7 +158,7 @@ export default class ExtensionForm extends Vue {
   }
 
   get inputDisabled() {
-    return this.extensionFormModel.status === 'abstained';
+    return this.extensionFormModel.status === 'abstained' || this.extensionFormModel.form === 'inflection';
   }
 
   formOptions = FORM_OPTIONS;
@@ -154,6 +170,8 @@ export default class ExtensionForm extends Vue {
   formChange(form: string) {
     if (form === 'inflection') {
       this.extensionFormModel.status = 'edited';
+      this.extensionFormModel.word = this.copy.word;
+      this.extensionFormModel.extension = this.copy.extension;
     }
   }
 

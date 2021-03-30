@@ -90,7 +90,9 @@
         <el-pagination
           layout="prev, pager, next"
           @current-change="pageChange"
-          :total="fliterData.length">
+          :total="fliterData.length"
+          :current-page.sync="page"
+        >
         </el-pagination>
       </div>
     </section>
@@ -100,6 +102,10 @@
         :visible="dialogVisible"
         @visibleChange="dialogVisible = $event"
         :baseFormModel="data"
+        :prevDisabled="data.index === 1"
+        :nextDisabled="data.index === fliterData.length"
+        @prev="prev"
+        @next="next"
       ></base-form>
       <extension-form
         v-if="fileType=='extension'"
@@ -108,6 +114,10 @@
         :extensionFormModel="data"
         :extensionPos="extensionPos"
         :descriptorMap="descriptorMap"
+        :prevDisabled="data.index === 1"
+        :nextDisabled="data.index === fliterData.length"
+        @prev="prev"
+        @next="next"
       ></extension-form>
     </section>
   </section>
@@ -177,6 +187,24 @@ export default class WorkSpace extends Vue {
       default:
         return '';
     }
+  }
+
+  prev() {
+    this.currentIndex -= 1;
+    if (this.currentIndex === -1) {
+      this.pageChange(this.page - 1);
+      this.currentIndex = this.tableData.length - 1;
+    }
+    this.data = this.tableData[this.currentIndex];
+  }
+
+  next() {
+    this.currentIndex += 1;
+    if (this.currentIndex >= this.tableData.length) {
+      this.currentIndex = 0;
+      this.pageChange(this.page + 1);
+    }
+    this.data = this.tableData[this.currentIndex];
   }
 
   rowClick(row: any, column: any) {
