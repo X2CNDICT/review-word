@@ -1,25 +1,3 @@
-const metadata = {
-  word: {
-    type: 'string',
-    disabled: true,
-  },
-  dict_pos: {
-    type: 'string',
-  },
-  meaning: {
-    type: 'string',
-  },
-  status: {
-    type: 'enum',
-    label: 'status',
-    enum: ['init', 'edited', 'checked'],
-    options: [
-      { label: 'init', value: 'init' },
-      { label: 'edited', value: 'edited' },
-      { label: 'checked', value: 'checked' },
-    ],
-  },
-};
 const vImperativo = {
   yo: {
     type: 'string',
@@ -41,7 +19,6 @@ const vImperativo = {
   },
 };
 const vDescriptor = {
-  ...metadata,
   variations: {
     type: 'object',
     label: 'variations',
@@ -152,7 +129,6 @@ const vDescriptor = {
   },
 };
 const nDescriptor = {
-  ...metadata,
   variations: {
     type: 'object',
     label: 'variations',
@@ -196,7 +172,6 @@ export default {
   'vt.': vDescriptor,
   'vi.': vDescriptor,
   'adj.': {
-    ...metadata,
     extension: {
       type: 'object',
       label: 'extension',
@@ -216,8 +191,4 @@ export default {
       },
     },
   },
-  'adv.': metadata,
-  'prep.': metadata,
-  'conj.': metadata,
-  'pron.': metadata,
 };

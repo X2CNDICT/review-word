@@ -60,7 +60,7 @@
           <div class="link">
             关于专业解释，参考
             <el-link
-              :href="'https://dictionary.cambridge.org/dictionary/english-chinese-simplified/'+extensionFormModel.word"
+              :href="dicBaseUrl+extensionFormModel.word"
               type="primary"
               target="_blank"
               :underline="false"
@@ -107,7 +107,9 @@
 import {
   Component, Prop, Vue, Watch,
 } from 'vue-property-decorator';
-import { FORM_OPTIONS, POS_CASCADER_OPTIONS, STATUS } from '@/consts';
+import {
+  FORM_OPTIONS, LANG_DICTIONARY_MAP, LANG_POS_CASCADER_OPTIONS_MAP, STATUS,
+} from '@/consts';
 import DynamicForm from 'vue-dynamic-form-component';
 
 @Component({
@@ -163,9 +165,17 @@ export default class ExtensionForm extends Vue {
 
   formOptions = FORM_OPTIONS;
 
-  posOptions = POS_CASCADER_OPTIONS;
+  posOptions = [];
+
+  dicBaseUrl = '';
 
   statusOptions = STATUS.map((s: string) => ({ label: s, value: s }));
+
+  mounted() {
+    const lang = this.$route.name || 'en';
+    this.posOptions = LANG_POS_CASCADER_OPTIONS_MAP[lang];
+    this.dicBaseUrl = LANG_DICTIONARY_MAP[lang];
+  }
 
   formChange(form: string) {
     if (form === 'inflection') {

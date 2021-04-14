@@ -298,9 +298,10 @@ export default class WorkSpace extends Vue {
       this.totalData = json.map((item: any, index: number) => {
         let d;
         if (this.fileType === 'base') {
-          d = baseResourceToModel(item, index);
+          d = baseResourceToModel(item, index, this.$route.name as string);
         }
         if (this.fileType === 'extension') {
+          console.log(item);
           d = extensionResourceToModel(item, index);
         }
         return d;

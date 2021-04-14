@@ -1,12 +1,13 @@
-import { POS_MAP } from '@/consts/index';
+import { LANG_POS_MAP } from '@/consts/index';
 
-export const baseResourceToModel = (resource: any, index: number) => {
+export const baseResourceToModel = (resource: any, index: number, lang: string) => {
   let explanation;
   try {
     explanation = JSON.parse(resource.explanation);
   } catch {
   // empty
   }
+  const POS_MAP = LANG_POS_MAP[lang || 'en'];
   return {
     index: index + 1,
     word: resource.word,

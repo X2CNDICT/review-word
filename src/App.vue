@@ -23,7 +23,7 @@ export default class App extends Vue {
 
   mounted() {
     this.activeName = this.$route.name as string;
-    window.addEventListener('beforeunload', this.preventRefresh);
+    // window.addEventListener('beforeunload', this.preventRefresh);
   }
 
   tabClick() {
