@@ -19,32 +19,6 @@ const vImperativo = {
   },
 };
 const vDescriptor = {
-  variations: {
-    type: 'object',
-    label: 'variations',
-    fields: {
-      original: {
-        type: 'string',
-      },
-      formats: {
-        type: 'array',
-        defaultField: {
-          type: 'object',
-          fields: {
-            tense: {
-              type: 'string',
-            },
-            person: {
-              type: 'string',
-            },
-            format: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    },
-  },
   extension: {
     type: 'object',
     label: 'extension',
@@ -129,21 +103,6 @@ const vDescriptor = {
   },
 };
 const nDescriptor = {
-  variations: {
-    type: 'object',
-    label: 'variations',
-    fields: {
-      original: {
-        type: 'string',
-      },
-      formats: {
-        type: 'array',
-        defaultField: {
-          type: 'string',
-        },
-      },
-    },
-  },
   extension: {
     type: 'object',
     label: 'extension',
