@@ -1,9 +1,10 @@
 <template>
   <el-dialog
-    width="700px"
+    width="80%"
     title="编辑/审查单词"
     :visible.sync="dialogVisible"
     custom-class="baseForm"
+    id="elDialog"
   >
     <el-form
       :model="extensionFormModel"
@@ -64,7 +65,7 @@
               type="primary"
               target="_blank"
               :underline="false"
-            >Cambridge</el-link>
+            >cambridge/pons</el-link>
           </div>
         </div>
       </el-form-item>
@@ -149,13 +150,7 @@ export default class ExtensionForm extends Vue {
   @Watch('visible')
   visibleChange(value: boolean) {
     if (value) {
-      this.copy = {
-        form: this.extensionFormModel.form,
-        word: this.extensionFormModel.word,
-        extension: {
-          ...this.extensionFormModel.extension,
-        },
-      };
+      this.$store.commit('setBaseWord', this.extensionFormModel);
     }
   }
 
@@ -179,17 +174,19 @@ export default class ExtensionForm extends Vue {
 
   formChange(form: string) {
     if (form === 'inflection') {
+      const copy = this.$store.state.baseWord;
       this.extensionFormModel.status = 'edited';
-      this.extensionFormModel.word = this.copy.word;
-      this.extensionFormModel.extension = this.copy.extension;
+      this.extensionFormModel.word = copy.word;
+      this.extensionFormModel.extension = copy.extension;
     }
   }
 
   statusChange(status: string) {
     if (status === 'abstained') {
-      this.extensionFormModel.word = this.copy.word;
-      this.extensionFormModel.form = this.copy.form;
-      this.extensionFormModel.extension = this.copy.extension;
+      const copy = this.$store.state.baseWord;
+      this.extensionFormModel.word = copy.word;
+      this.extensionFormModel.form = copy.form;
+      this.extensionFormModel.extension = copy.extension;
     }
   }
 }

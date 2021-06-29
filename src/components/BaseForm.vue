@@ -4,6 +4,7 @@
     title="编辑/审查单词"
     :visible.sync="dialogVisible"
     custom-class="baseForm"
+    id="elDialog"
   >
     <el-form
       :model="baseFormModel"
@@ -58,7 +59,7 @@
               type="primary"
               target="_blank"
               :underline="false"
-            >Cambridge</el-link>
+            >cambridge/pons</el-link>
           </div>
         </div>
       </el-form-item>
@@ -83,7 +84,7 @@
             :prop="'explanation.' + index + '.meaning'"
             label="meaning"
           >
-            <el-input v-model="item.meaning" :disabled="inputDisabled"></el-input>
+            <el-input type="textarea" v-model="item.meaning" :disabled="inputDisabled"></el-input>
           </el-form-item>
           </section>
         <el-button
@@ -144,8 +145,6 @@ export default class BaseFrom extends Vue {
   @Prop()
   nextDisabled: any;
 
-  copy: any;
-
   get dialogVisible() {
     return this.visible;
   }
@@ -161,11 +160,7 @@ export default class BaseFrom extends Vue {
   @Watch('visible')
   visibleChange(value: boolean) {
     if (value) {
-      this.copy = {
-        form: this.baseFormModel.form,
-        word: this.baseFormModel.word,
-        explanation: cloneDeep(this.baseFormModel.explanation),
-      };
+      this.$store.commit('setBaseWord', this.baseFormModel);
     }
   }
 
@@ -185,17 +180,19 @@ export default class BaseFrom extends Vue {
 
   formChange(form: string) {
     if (form === 'inflection') {
+      const copy = this.$store.state.baseWord;
       this.baseFormModel.status = 'edited';
-      this.baseFormModel.word = this.copy.word;
-      this.baseFormModel.explanation = cloneDeep(this.copy.explanation);
+      this.baseFormModel.word = copy.word;
+      this.baseFormModel.explanation = cloneDeep(copy.explanation);
     }
   }
 
   statusChange(status: string) {
     if (status === 'abstained') {
-      this.baseFormModel.word = this.copy.word;
-      this.baseFormModel.form = this.copy.form;
-      this.baseFormModel.explanation = cloneDeep(this.copy.explanation);
+      const copy = this.$store.state.baseWord;
+      this.baseFormModel.word = copy.word;
+      this.baseFormModel.form = copy.form;
+      this.baseFormModel.explanation = cloneDeep(copy.explanation);
     }
   }
 

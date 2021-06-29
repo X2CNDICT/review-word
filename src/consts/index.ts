@@ -43,5 +43,5 @@ export const LANG_DICTIONARY_MAP: {
   [key: string]: string;
 } = {
   en: 'https://dictionary.cambridge.org/dictionary/english-chinese-simplified/',
-  es: 'https://dle.rae.es/',
+  es: 'https://zh.pons.com/%E7%BF%BB%E8%AF%91/%E8%A5%BF%E7%8F%AD%E7%89%99%E8%AF%AD-%E4%B8%AD%E6%96%87/',
 };

@@ -132,6 +132,7 @@ import ExtensionForm from '@/components/ExtensionForm.vue';
 import {
   baseModelToResource, baseResourceToModel, extensionModelToResource, extensionResourceToModel,
 } from '@/utils';
+import { cloneDeep } from 'lodash';
 
 @Component({
   components: {
@@ -196,6 +197,9 @@ export default class WorkSpace extends Vue {
       this.currentIndex = this.tableData.length - 1;
     }
     this.data = this.tableData[this.currentIndex];
+    this.$store.commit('setBaseWord', this.data);
+    const el = document.getElementById('elDialog');
+    if (el) el.scrollTop = 0;
   }
 
   next() {
@@ -205,6 +209,9 @@ export default class WorkSpace extends Vue {
       this.pageChange(this.page + 1);
     }
     this.data = this.tableData[this.currentIndex];
+    this.$store.commit('setBaseWord', this.data);
+    const el = document.getElementById('elDialog');
+    if (el) el.scrollTop = 0;
   }
 
   rowClick(row: any, column: any) {
@@ -301,7 +308,6 @@ export default class WorkSpace extends Vue {
           d = baseResourceToModel(item, index, this.$route.name as string);
         }
         if (this.fileType === 'extension') {
-          console.log(item);
           d = extensionResourceToModel(item, index);
         }
         return d;
@@ -316,7 +322,7 @@ export default class WorkSpace extends Vue {
   }
 
   exportXlsx() {
-    const data = this.fliterData.map((item: any) => {
+    const data = cloneDeep(this.fliterData).map((item: any) => {
       let d;
       if (this.fileType === 'base') {
         d = baseModelToResource(item);

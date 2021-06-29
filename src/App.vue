@@ -6,7 +6,7 @@
         <el-tab-pane label="西班牙语" name="es"></el-tab-pane>
       </el-tabs>
       <div style="flex: 1"></div>
-      <span class="version">单机版</span>
+      <span class="version">词典审核-单机版</span>
     </el-header>
     <el-main>
       <router-view />
@@ -66,7 +66,7 @@ body {
   padding: 0 16% !important;
   .version {
     font-size: 14px;
-    color: #8F9297;
+    color: #FC754B;
   }
 }
 .tab {
