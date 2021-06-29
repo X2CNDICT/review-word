@@ -7,3 +7,11 @@
 button.el-button.delete-button {
   position: unset;
 }
+.baseForm {
+  .el-dialog__body {
+    padding: 30px 50px;
+  }
+  .el-dialog__header {
+    text-align: left;
+  }
+}

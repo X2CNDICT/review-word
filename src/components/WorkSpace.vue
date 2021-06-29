@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 <template>
   <section class="container">
     <section style="width: 100%">
@@ -5,19 +6,33 @@
         <input
           type="file"
           hidden
-          ref="file"
-          @change="selectFile($event);$refs.file.value=null"
+          ref="fileBase"
+          @change="selectFile($event, 'base');$refs.fileBase.value=null"
           accept=".xls,.xlsx,.csv"
         >
-        <el-button @click="$refs.file.click()">
-          import
-          <i class="el-icon-upload2"></i>
+        <input
+          type="file"
+          hidden
+          ref="fileExtension"
+          @change="selectFile($event, 'extension');$refs.fileExtension.value=null"
+          accept=".xls,.xlsx,.csv"
+        >
+        <el-button @click="$refs.fileBase.click()" icon="el-icon-upload2">
+          上传释义文件
         </el-button>
-        <el-button type="primary" @click="exportXlsx">
-          export
-          <i class="el-icon-download"></i>
+        <el-button @click="$refs.fileExtension.click()" icon="el-icon-upload2">
+          上传变化文件
         </el-button>
+        <el-input
+          v-model="searchWord"
+          placeholder="搜索单词"
+          @keyup.enter.native="doFliter"
+          class="search"
+        ></el-input>
         <span style="flex: 1"></span>
+        <el-button icon="el-icon-download" @click="exportXlsx">
+          导出文件
+        </el-button>
       </section>
       <el-table
         :data="tableData"
@@ -26,23 +41,33 @@
         @filter-change="fliterChange"
       >
         <el-table-column
+          width="50">
+          <template slot-scope="scope">
+            {{ scope.row.index }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="form"
+          label="form">
+          <template slot-scope="scope">
+            <el-select
+              size="small"
+              v-model="scope.row.form"
+              @change="formChange($event, scope.row)"
+            >
+              <el-option
+                v-for="item in formOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="word"
-          label="word"
-          width="80">
-        </el-table-column>
-        <el-table-column
-          prop="dict_pos"
-          label="dict_pos"
-          width="100"
-          :filters="posFilters"
-          filter-placement="bottom-end"
-        >
-        </el-table-column>
-        <el-table-column
-          prop="meaning"
-          label="meaning"
-          width="140"
-        >
+          label="word">
         </el-table-column>
         <el-table-column
           prop="status"
@@ -50,44 +75,13 @@
           :filters="statusFilters"
           filter-placement="bottom-end"
         >
-        </el-table-column>
-        <el-table-column
-          prop="variations"
-          label="variations">
           <template slot-scope="scope">
-            {{scope.row.variations}}
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="extension"
-          label="extension">
-          <template slot-scope="scope">
-            <div class="extension">{{scope.row.extension}}</div>
-          </template>
-        </el-table-column>
-        <el-table-column width="120" label="action">
-           <template slot="header" slot-scope="_scope">
-              <el-input
-                v-model="searchWord"
-                @input="searchWordChange"
-                size="mini"
-                placeholder="search word"/>
-          </template>
-          <template slot-scope="scope">
-            <el-button
-              type="primary"
-              icon="el-icon-document-copy"
-              circle
-              size="mini"
-              @click="handleCopy(scope.$index, scope.row)">
-            </el-button>
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              circle
-              size="mini"
-              @click="handleDelete(scope.$index)"
-            ></el-button>
+            <el-tag
+              size="small"
+              :type="getTagType(scope.row.status)"
+            >
+              {{ scope.row.status }}
+            </el-tag>
           </template>
         </el-table-column>
       </el-table>
@@ -96,42 +90,54 @@
         <el-pagination
           layout="prev, pager, next"
           @current-change="pageChange"
-          :total="fliterData.length">
+          :total="fliterData.length"
+          :current-page.sync="page"
+        >
         </el-pagination>
       </div>
     </section>
-    <el-dialog width="80%" title="edit or check word" :visible.sync="dialogVisible">
-      <section class="action">
-        <el-button
-          :disabled="currentIndex === 0"
-          @click="prev"
-        >prev</el-button>
-        <div style="flex: 1"></div>
-        <el-button
-          :disabled="currentIndex === tableData.length - 1"
-          type="primary"
-          @click="next"
-        >next</el-button>
-      </section>
-      <div v-if="!descriptorMap[data.pos]" style="color: red">unsupport pos</div>
-      <dynamic-form
-        v-if="descriptorMap[data.pos]"
-        v-model="data"
-        :descriptors="descriptorMap[data.pos]">
-      </dynamic-form>
-    </el-dialog>
+    <section>
+      <base-form
+        v-if="fileType=='base'"
+        :visible="dialogVisible"
+        @visibleChange="dialogVisible = $event"
+        :baseFormModel="data"
+        :prevDisabled="data.index === 1"
+        :nextDisabled="data.index === fliterData.length"
+        @prev="prev"
+        @next="next"
+      ></base-form>
+      <extension-form
+        v-if="fileType=='extension'"
+        :visible="dialogVisible"
+        @visibleChange="dialogVisible = $event"
+        :extensionFormModel="data"
+        :extensionPos="extensionPos"
+        :descriptorMap="descriptorMap"
+        :prevDisabled="data.index === 1"
+        :nextDisabled="data.index === fliterData.length"
+        @prev="prev"
+        @next="next"
+      ></extension-form>
+    </section>
   </section>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import DynamicForm from 'vue-dynamic-form-component';
 import xlsx from 'xlsx';
+import { FILE_EXTENSION_POS_MAP, FORM_OPTIONS, STATUS } from '@/consts';
+import BaseForm from '@/components/BaseForm.vue';
+import ExtensionForm from '@/components/ExtensionForm.vue';
+import {
+  baseModelToResource, baseResourceToModel, extensionModelToResource, extensionResourceToModel,
+} from '@/utils';
 import { cloneDeep } from 'lodash';
 
 @Component({
   components: {
-    DynamicForm,
+    BaseForm,
+    ExtensionForm,
   },
 })
 export default class WorkSpace extends Vue {
@@ -153,17 +159,16 @@ export default class WorkSpace extends Vue {
 
   searchWord = '';
 
-  posFilters: {text: string; value: string}[] = [];
+  extensionPos = '';
 
-  statusFilters = [
-    { text: 'init', value: 'init' },
-    { text: 'edited', value: 'edited' },
-    { text: 'checked', value: 'checked' },
-  ]
+  fileType = '';
+
+  formOptions = FORM_OPTIONS;
+
+  statusFilters = STATUS.map((s: string) => ({ text: s, value: s }));
 
   fliter = {
     word: '',
-    dict_pos: [],
     status: [],
   };
 
@@ -172,14 +177,41 @@ export default class WorkSpace extends Vue {
   @Prop()
   descriptorMap: any;
 
+  getTagType(status: string) {
+    switch (status) {
+      case 'init':
+        return 'info';
+      case 'abstained':
+        return 'warning';
+      case 'edited':
+        return '';
+      default:
+        return '';
+    }
+  }
+
   prev() {
     this.currentIndex -= 1;
+    if (this.currentIndex === -1) {
+      this.pageChange(this.page - 1);
+      this.currentIndex = this.tableData.length - 1;
+    }
     this.data = this.tableData[this.currentIndex];
+    this.$store.commit('setBaseWord', this.data);
+    const el = document.getElementById('elDialog');
+    if (el) el.scrollTop = 0;
   }
 
   next() {
     this.currentIndex += 1;
+    if (this.currentIndex >= this.tableData.length) {
+      this.currentIndex = 0;
+      this.pageChange(this.page + 1);
+    }
     this.data = this.tableData[this.currentIndex];
+    this.$store.commit('setBaseWord', this.data);
+    const el = document.getElementById('elDialog');
+    if (el) el.scrollTop = 0;
   }
 
   rowClick(row: any, column: any) {
@@ -187,6 +219,13 @@ export default class WorkSpace extends Vue {
     this.currentIndex = this.tableData.findIndex((data) => data === row);
     this.data = row;
     this.dialogVisible = true;
+  }
+
+  formChange(form: string, row: any) {
+    if (form === 'inflection') {
+      // eslint-disable-next-line no-param-reassign
+      row.status = 'edited';
+    }
   }
 
   tableRowClassName({ rowIndex }: { rowIndex: number }) {
@@ -201,28 +240,14 @@ export default class WorkSpace extends Vue {
 
   fliterChange(filters: any) {
     const key = Object.keys(filters)[0];
-    if (key.includes('_column_2')) {
-      this.fliter.dict_pos = filters[key];
-    }
     if (key.includes('_column_4')) {
       this.fliter.status = filters[key];
     }
     this.doFliter();
   }
 
-  searchWordChange() {
-    this.fliter.word = this.searchWord;
-    this.doFliter();
-  }
-
   doFliter() {
     this.fliterData = this.totalData
-      .filter((data) => {
-        if (this.fliter.dict_pos.length) {
-          return (this.fliter.dict_pos as any).includes(data.dict_pos);
-        }
-        return true;
-      })
       .filter((data) => {
         if (this.fliter.status.length) {
           return (this.fliter.status as any).includes(data.status);
@@ -230,8 +255,8 @@ export default class WorkSpace extends Vue {
         return true;
       })
       .filter((data) => {
-        if (this.fliter.word) {
-          return data.word.includes(this.fliter.word);
+        if (this.searchWord) {
+          return data.word.includes(this.searchWord);
         }
         return true;
       });
@@ -243,71 +268,49 @@ export default class WorkSpace extends Vue {
   getTableData(start: number, end: number) {
     let i = start;
     const array = [];
-    while (i <= end && this.fliterData[i]) {
+    while (i < end && this.fliterData[i]) {
       array.push(this.fliterData[i]);
       i += 1;
     }
     return array;
   }
 
-  handleCopy(index: number, row: any) {
-    const startIndex = (this.page - 1) * this.pageSize;
-    this.totalData.splice(startIndex + index, 0, cloneDeep(row));
-    this.doFliter();
-  }
-
-  handleDelete(index: number) {
-    const startIndex = (this.page - 1) * this.pageSize;
-    this.totalData.splice(startIndex + index, 1);
-    this.doFliter();
-  }
-
-  selectFile(event: any) {
+  selectFile(event: any, type: string) {
     const { files } = event.target;
     const f = files[0];
     const fileExtension = f.name.split('.').pop().toLowerCase();
     this.fileName = f.name.replace(`.${fileExtension}`, '');
     const isCSV = f.name.split('.').reverse()[0] === 'csv';// 判断是否是 CSV
     const reader = new FileReader();
+    if (type === 'base' && !this.fileName.includes('base')) {
+      this.$message.error('请上传释义文件 base.csv');
+      return;
+    }
+    if (type === 'extension' && !this.fileName.includes('extension')) {
+      this.$message.error('请上传释义文件 xxx_extension.csv');
+      return;
+    }
+    this.fileType = type;
+    if (type === 'extension') {
+      // eslint-disable-next-line prefer-destructuring
+      const pos = this.fileName.split('_')[0];
+      this.extensionPos = FILE_EXTENSION_POS_MAP[pos];
+    }
     reader.onload = (e: any) => {
       const workbook = xlsx.read(e.target.result, {
         type: 'binary',
       });
       const first_worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const json = xlsx.utils.sheet_to_json(first_worksheet);
-      this.totalData = json.map((item: any) => {
-        let variations;
-        let extension;
-        try {
-          extension = JSON.parse(item.extension);
-        } catch {
-        // empty
+      this.totalData = json.map((item: any, index: number) => {
+        let d;
+        if (this.fileType === 'base') {
+          d = baseResourceToModel(item, index, this.$route.name as string);
         }
-        try {
-          variations = JSON.parse(item.variations);
-        } catch {
-        // empty
+        if (this.fileType === 'extension') {
+          d = extensionResourceToModel(item, index);
         }
-        const word = {
-          word: item.word,
-          dict_pos: item.dict_pos,
-          pos: item.dict_pos,
-          meaning: item.meaning,
-          variations: {
-            origin: '',
-            formats: [],
-            ...variations,
-          },
-          extension: extension || {},
-          status: item.status || 'init',
-        };
-        if (!this.posFilters.find((i) => i.value === item.dict_pos)) {
-          this.posFilters.push({
-            text: item.dict_pos,
-            value: item.dict_pos,
-          });
-        }
-        return word;
+        return d;
       });
       this.doFliter();
     };
@@ -319,13 +322,14 @@ export default class WorkSpace extends Vue {
   }
 
   exportXlsx() {
-    const data = this.fliterData.map((item: any) => {
-      const d = {
-        ...item,
-        variations: JSON.stringify(item.variations),
-        extension: JSON.stringify(item.extension),
-      };
-      delete d.pos;
+    const data = cloneDeep(this.fliterData).map((item: any) => {
+      let d;
+      if (this.fileType === 'base') {
+        d = baseModelToResource(item);
+      }
+      if (this.fileType === 'extension') {
+        d = extensionModelToResource(item);
+      }
       return d;
     });
     /* make the worksheet */
@@ -352,6 +356,10 @@ export default class WorkSpace extends Vue {
 .csv-action {
   display: flex;
   padding: 0 0 20px;
+  .search {
+    width: 178px;
+    margin-left: 10px;
+  }
 }
 .el-table .current-row {
   background: #f0f9eb;
