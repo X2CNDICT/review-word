@@ -54,6 +54,10 @@ export const POS_ADJ_OPTIONS_ES = [
     label: 'excl. 感叹形容词',
     value: 'adj.excl.',
   },
+  {
+    label: 'num. 数目形容词',
+    value: 'adj.num.',
+  },
 ];
 
 export const POS_CASCADER_OPTIONS_ES = [
