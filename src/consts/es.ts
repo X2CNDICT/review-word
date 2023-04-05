@@ -110,7 +110,7 @@ export const POS_CASCADER_OPTIONS_ES = [
         value: 'pron.',
       },
       {
-        label: 'pron. 指示代词',
+        label: 'dem. 指示代词',
         value: 'pron.dem.',
       },
       {
@@ -134,8 +134,12 @@ export const POS_CASCADER_OPTIONS_ES = [
         value: 'pron.relat.',
       },
       {
-        label: 'poses. 物主形容词',
+        label: 'poses. 物主代词',
         value: 'pron.poses.',
+      },
+      {
+        label: 'num. 数目代词',
+        value: 'pron.num.',
       },
     ],
   },
